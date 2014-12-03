@@ -1,11 +1,15 @@
 class Homestead
-  def Homestead.configure(config, settings)
+  def Homestead.configure(config, settings, useMyHomestead = false)
     # Configure The Box
     config.vm.box = "laravel/homestead"
     config.vm.hostname = "homestead"
 
     # Configure A Private Network IP
     config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.10"
+    
+    if useMyHomestead then
+      MyHomestead.configure(config, settings)
+    end
 
     # Configure A Few VirtualBox Settings
     config.vm.provider "virtualbox" do |vb|
@@ -45,6 +49,9 @@ class Homestead
 
     # Install All The Configured Nginx Sites
     settings["sites"].each do |site|
+      if useMyHomestead then
+        MyHomestead.configureSite(site["map"], site["to"], config)
+      end
       config.vm.provision "shell" do |s|
           if (site.has_key?("hhvm") && site["hhvm"])
             s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 $2"
