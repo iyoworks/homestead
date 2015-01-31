@@ -44,6 +44,9 @@ class Homestead
 
     # Register All Of The Configured Shared Folders
     settings["folders"].each do |folder|
+      if useMyHomestead then
+        MyHomestead.configureFolder(folder, config)
+      end
       config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil
     end
 
